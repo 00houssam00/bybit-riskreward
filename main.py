@@ -67,21 +67,29 @@ def closeby_riskreward():
     entry_price = my_position['result'][position_state['position_index']]['entry_price']
     stop_loss = my_position['result'][position_state['position_index']]['stop_loss']
     fee = my_position['result'][position_state['position_index']]['occ_closing_fee']
-    risk_reward_after_fees = risk_reward + (float(fee) / float(risk))
-    close_by_price_diff = (math.fabs(float(entry_price) - float(stop_loss)) / float(entry_price)) * float(risk_reward_after_fees)
 
-    if position_state['side'] == 'Buy':
-        close_by_price = entry_price - (close_by_price_diff * entry_price)
-    elif position_state['side'] == 'Sell':
-        close_by_price = entry_price + (close_by_price_diff * entry_price)
+    if config.adapt_risk_reward_to_include_fees == "yes":
+        risk_reward_after_fees = risk_reward + (float(fee) / float(risk))
+    elif config.adapt_risk_reward_to_include_fees == "no":
+        risk_reward_after_fees = risk_reward
 
-    if close_by_price:
-        bybit_request_helper.place_limit_close_by(
-            position_state['side'],
-            int(close_by_price),
-            my_position['result'][position_state['position_index']]['size'])
+    if risk_reward_after_fees:
+        close_by_price_diff = (math.fabs(float(entry_price) - float(stop_loss)) / float(entry_price)) * float(risk_reward_after_fees)
+
+        if position_state['side'] == 'Buy':
+            close_by_price = entry_price - (close_by_price_diff * entry_price)
+        elif position_state['side'] == 'Sell':
+            close_by_price = entry_price + (close_by_price_diff * entry_price)
+
+        if close_by_price:
+            bybit_request_helper.place_limit_close_by(
+                position_state['side'],
+                int(close_by_price),
+                my_position['result'][position_state['position_index']]['size'])
+        else:
+            print(">> Closeby Failed <<")
     else:
-        print(">> Closeby Failed <<")
+        print(">> Error while calculating risk reward <<")
 
 
 def closeby_price(price):
