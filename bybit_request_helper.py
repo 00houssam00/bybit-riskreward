@@ -1,13 +1,13 @@
 import pybit.exceptions
 from pybit import usdt_perpetual
-import config
+import api_config
 
 
 def _create_usdt_perpetual_session():
     return usdt_perpetual.HTTP(
         endpoint="https://api.bybit.com",
-        api_key=config.api_key,
-        api_secret=config.api_secret)
+        api_key=api_config.api_key,
+        api_secret=api_config.api_secret)
 
 
 def place_limit_order(side, price, qty, stop_loss):
