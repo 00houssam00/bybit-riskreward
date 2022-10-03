@@ -49,8 +49,9 @@ def process_command_order(commands, side):
         qty = calculate_quantity(entry_price, stop_loss)
         bybit_request_helper.set_leverage(leverage, leverage)
         bybit_request_helper.place_limit_order(side, entry_price, qty, stop_loss)
-    except:
+    except Exception as ex:
         print(">> Order Failed <<")
+        print(ex)
 
 
 def process_command_closeby(commands):
