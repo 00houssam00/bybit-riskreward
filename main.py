@@ -23,7 +23,7 @@ def calculate_position(entry_price, stop_loss):
 
 def calculate_leverage(position):
     global available_balance
-    return math.ceil(float(position) / float(available_balance)) + 2
+    return math.ceil(float(position) / float(available_balance))
 
 
 def calculate_quantity(entry_price, stop_loss):
