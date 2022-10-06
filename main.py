@@ -16,7 +16,7 @@ def print_console(result):
 
 def calculate_position(entry_price, stop_loss):
     global available_balance
-    return (float(config.risk) * float(entry_price)) / math.fabs(float(entry_price) - float(stop_loss))
+    return (float(get_user_current_risk()) * float(entry_price)) / math.fabs(float(entry_price) - float(stop_loss))
 
 
 def calculate_leverage(position):
@@ -25,7 +25,7 @@ def calculate_leverage(position):
 
 
 def calculate_quantity(entry_price, stop_loss):
-    return float(config.risk) / math.fabs(float(entry_price) - float(stop_loss))
+    return float(get_user_current_risk()) / math.fabs(float(entry_price) - float(stop_loss))
 
 
 def process_command_order(commands, side):
@@ -57,7 +57,7 @@ def closeby_riskreward():
     fee = my_position['result'][position_state['position_index']]['occ_closing_fee']
 
     if config.adapt_risk_reward_to_include_fees == "yes":
-        risk_reward_after_fees = config.risk_reward + (float(fee) / float(config.risk))
+        risk_reward_after_fees = config.risk_reward + (float(fee) / float(get_user_current_risk()))
     elif config.adapt_risk_reward_to_include_fees == "no":
         risk_reward_after_fees = config.risk_reward
 
@@ -118,6 +118,24 @@ def process_command_position():
         pass
 
 
+def show_user_current_risk():
+    global available_balance
+
+    match config.risk_unit:
+        case 'AMOUNT':
+            print(f"Your current risk is: {config.risk}$")
+        case 'PERCENTAGE':
+            print(f"Your current risk is: {config.risk}% -> {get_user_current_risk()}$")
+
+
+def get_user_current_risk():
+    match config.risk_unit:
+        case 'AMOUNT':
+            return {config.risk}
+        case 'PERCENTAGE':
+            return (config.risk / 100) * available_balance
+
+
 while True:
     print_break_line()
 
@@ -125,11 +143,12 @@ while True:
     available_balance = bybit_request_helper.get_current_balance()
     print(f"Your current available balance is {available_balance}$")
 
-    # Show current user risk
-    print(f"Your current risk is: {config.risk}$")
+    show_user_current_risk()
 
     # Show current user risk to reward ratio
-    print(f"Your current risk to reward is: {config.risk_reward} -> {float(config.risk) * float(config.risk_reward)}$")
+    risk = get_user_current_risk();
+    print(f"Your current risk to reward is: {config.risk_reward} -> "
+          f"{risk}$:{risk * float(config.risk_reward)}$")
 
     # Get command str from user
     user_command = input('>> ')
