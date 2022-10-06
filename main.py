@@ -102,7 +102,7 @@ def get_current_position_state(position):
         return None
 
 
-def process_command_position():
+def show_open_position():
     my_position = bybit_request_helper.get_current_position()
     position_state = get_current_position_state(my_position)
 
@@ -111,9 +111,9 @@ def process_command_position():
             side = my_position['result'][position_state['position_index']]['side']
             realised_pnl = my_position['result'][position_state['position_index']]['realised_pnl']
             unrealised_pnl = my_position['result'][position_state['position_index']]['unrealised_pnl']
-            print(f"side -> {side} realised_pnl -> {realised_pnl} - unrealised_pnl {unrealised_pnl}")
+            print(f"position: side -> {side} realised_pnl -> {realised_pnl} - unrealised_pnl {unrealised_pnl}")
         else:
-            print(">> No Open Position")
+            print("position: No Open Position")
     except:
         pass
 
@@ -150,6 +150,9 @@ while True:
     print(f"Your current risk to reward is: {config.risk_reward} -> "
           f"{risk}$:{risk * float(config.risk_reward)}$")
 
+    # Show open position if exist
+    show_open_position()
+
     # Get command str from user
     user_command = input('>> ')
     commands = user_command.split()
@@ -163,5 +166,3 @@ while True:
                 process_command_order(commands, 'Sell')
             case 'closeby':
                 process_command_closeby(commands)
-            case 'position':
-                process_command_position()
