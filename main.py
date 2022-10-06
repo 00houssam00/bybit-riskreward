@@ -4,8 +4,6 @@ import config
 import bybit_request_helper
 
 available_balance = -1
-risk = config.default_risk
-risk_reward = config.default_risk_reward
 
 
 def print_break_line():
@@ -17,8 +15,8 @@ def print_console(result):
 
 
 def calculate_position(entry_price, stop_loss):
-    global risk, available_balance
-    return (float(risk) * float(entry_price)) / math.fabs(float(entry_price) - float(stop_loss))
+    global available_balance
+    return (float(config.risk) * float(entry_price)) / math.fabs(float(entry_price) - float(stop_loss))
 
 
 def calculate_leverage(position):
@@ -27,17 +25,7 @@ def calculate_leverage(position):
 
 
 def calculate_quantity(entry_price, stop_loss):
-    global risk
-    return float(risk) / math.fabs(float(entry_price) - float(stop_loss))
-
-
-def process_command_set(commands):
-    if commands[1] == 'risk':
-        global risk
-        risk = commands[2]
-    elif commands[1] == 'riskreward':
-        global risk_reward
-        risk_reward = commands[2]
+    return float(config.risk) / math.fabs(float(entry_price) - float(stop_loss))
 
 
 def process_command_order(commands, side):
@@ -62,7 +50,6 @@ def process_command_closeby(commands):
 
 
 def closeby_riskreward():
-    global risk_reward
     my_position = bybit_request_helper.get_current_position()
     position_state = get_current_position_state(my_position)
     entry_price = my_position['result'][position_state['position_index']]['entry_price']
@@ -70,9 +57,9 @@ def closeby_riskreward():
     fee = my_position['result'][position_state['position_index']]['occ_closing_fee']
 
     if config.adapt_risk_reward_to_include_fees == "yes":
-        risk_reward_after_fees = risk_reward + (float(fee) / float(risk))
+        risk_reward_after_fees = config.risk_reward + (float(fee) / float(config.risk))
     elif config.adapt_risk_reward_to_include_fees == "no":
-        risk_reward_after_fees = risk_reward
+        risk_reward_after_fees = config.risk_reward
 
     if risk_reward_after_fees:
         close_by_price_diff = (math.fabs(float(entry_price) - float(stop_loss)) / float(entry_price)) * float(risk_reward_after_fees)
@@ -139,10 +126,10 @@ while True:
     print(f"Your current available balance is {available_balance}$")
 
     # Show current user risk
-    print(f"Your current risk is: {risk}$")
+    print(f"Your current risk is: {config.risk}$")
 
     # Show current user risk to reward ratio
-    print(f"Your current risk to reward is: {risk_reward} -> {float(risk) * float(risk_reward)}$")
+    print(f"Your current risk to reward is: {config.risk_reward} -> {float(config.risk) * float(config.risk_reward)}$")
 
     # Get command str from user
     user_command = input('>> ')
@@ -151,8 +138,6 @@ while True:
     # Process command
     if commands:
         match commands[0]:
-            case 'set':
-                process_command_set(commands)
             case 'long':
                 process_command_order(commands, 'Buy')
             case 'short':
