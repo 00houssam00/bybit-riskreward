@@ -1,6 +1,7 @@
 import pybit.exceptions
 from pybit import usdt_perpetual
 import api_config
+import config
 
 
 def _create_usdt_perpetual_session():
@@ -18,7 +19,7 @@ def place_limit_order(side, price, qty, stop_loss):
         order_type="Limit",
         qty=round(qty, 3),
         price=price,
-        time_in_force="GoodTillCancel",
+        time_in_force=config.time_in_force,
         reduce_only=False,
         close_on_trigger=False,
         stop_loss=stop_loss)
@@ -32,7 +33,7 @@ def place_limit_close_by(side, price, qty):
         order_type="Limit",
         qty=round(qty, 3),
         price=price,
-        time_in_force="GoodTillCancel",
+        time_in_force=config.time_in_force,
         reduce_only=True,
         close_on_trigger=False)
 
