@@ -29,16 +29,16 @@ def calculate_quantity(entry_price, stop_loss):
 
 
 def process_command_order(commands, side):
+    entry_price = commands[1]
+    stop_loss = commands[2]
+    position = calculate_position(entry_price, stop_loss)
+    leverage = calculate_leverage(position)
+    qty = calculate_quantity(entry_price, stop_loss)
     try:
-        entry_price = commands[1]
-        stop_loss = commands[2]
-        position = calculate_position(entry_price, stop_loss)
-        leverage = calculate_leverage(position)
-        qty = calculate_quantity(entry_price, stop_loss)
         bybit_request_helper.set_leverage(leverage, leverage)
         bybit_request_helper.place_limit_order(side, entry_price, qty, stop_loss)
     except Exception as ex:
-        print(">> Order Failed <<")
+        print(f">> Order Failed << [entry: {entry_price} / stopLoss: {stop_loss} / position: {position} / leverage: {leverage} / qty: {qty}]")
         print(ex)
 
 
