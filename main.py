@@ -111,7 +111,7 @@ def show_open_position():
             side = my_position['result'][position_state['position_index']]['side']
             realised_pnl = my_position['result'][position_state['position_index']]['realised_pnl']
             unrealised_pnl = my_position['result'][position_state['position_index']]['unrealised_pnl']
-            print(f"position: side -> {side} realised_pnl -> {realised_pnl} - unrealised_pnl {unrealised_pnl}")
+            print(f"position: [side: {side} / realised_pnl: {realised_pnl} / unrealised_pnl: {unrealised_pnl}]")
         else:
             print("position: No Open Position")
     except:
