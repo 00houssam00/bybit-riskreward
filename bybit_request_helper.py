@@ -1,5 +1,7 @@
-import pybit.exceptions
+from datetime import datetime, timedelta
 from pybit import usdt_perpetual
+
+import pybit.exceptions
 import api_config
 import config
 
@@ -20,6 +22,23 @@ def place_limit_order(side, price, qty, stop_loss):
         qty=round(qty, 3),
         price=price,
         time_in_force=config.time_in_force,
+        reduce_only=False,
+        close_on_trigger=False,
+        stop_loss=stop_loss)
+
+
+def place_limit_conditional_order(side, price, qty, stop_loss):
+    session_auth = _create_usdt_perpetual_session()
+    return session_auth.place_conditional_order(
+        symbol="BTCUSDT",
+        side=side,
+        order_type="Limit",
+        qty=round(qty, 3),
+        price=price,
+        stop_px=price,
+        base_price=_calculate_cond_order_base_price(side, price),
+        time_in_force=config.time_in_force,
+        trigger_by="LastPrice",
         reduce_only=False,
         close_on_trigger=False,
         stop_loss=stop_loss)
@@ -63,3 +82,20 @@ def get_current_balance():
 def get_current_position():
     session_auth = _create_usdt_perpetual_session()
     return session_auth.my_position(symbol="BTCUSDT")
+
+
+def get_current_price():
+    session_auth = _create_usdt_perpetual_session()
+    response = session_auth.query_kline(
+        symbol="BTCUSDT",
+        interval=5,
+        limit=1,
+        from_time=int(datetime.timestamp(datetime.now() - timedelta(minutes = 6))))
+    return response['result'][0]['close']
+
+
+def _calculate_cond_order_base_price(side, price):
+    if side == 'Buy':
+        return float(price) - float(1000)
+    elif side == 'Sell':
+        return float(price) + float(1000)

@@ -36,7 +36,21 @@ def process_command_order(commands, side):
     qty = calculate_quantity(entry_price, stop_loss)
     try:
         bybit_request_helper.set_leverage(leverage, leverage)
-        bybit_request_helper.place_limit_order(side, entry_price, qty, stop_loss)
+        latest_price = bybit_request_helper.get_current_price()
+
+        if side == 'Buy':
+            if float(entry_price) > float(latest_price):
+                bybit_request_helper.place_limit_conditional_order(side, entry_price, qty, stop_loss)
+            else:
+                bybit_request_helper.place_limit_order(side, entry_price, qty, stop_loss)
+        elif side == 'Sell':
+            if float(entry_price) < float(latest_price):
+                bybit_request_helper.place_limit_conditional_order(side, entry_price, qty, stop_loss)
+            else:
+                bybit_request_helper.place_limit_order(side, entry_price, qty, stop_loss)
+        else:
+            print(">> Order Failed << side not defined")
+
     except Exception as ex:
         print(f">> Order Failed << [entry: {entry_price} / stopLoss: {stop_loss} / position: {position} / leverage: {leverage} / qty: {qty}]")
         print(ex)
