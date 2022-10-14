@@ -29,14 +29,25 @@ def calculate_quantity(entry_price, stop_loss):
 
 
 def process_command_order(commands, side):
-    entry_price = commands[1]
-    stop_loss = commands[2]
+
+    if len(commands) == 2:
+        stop_loss = commands[1]
+        latest_bar = bybit_request_helper.get_latest_bar_info()
+        latest_price = latest_bar['result'][0]['high']['close']
+        if side == 'Buy':
+            entry_price = latest_bar['result'][0]['high'] + 20
+        elif side == 'Sell':
+            entry_price = latest_bar['result'][0]['low'] - 20
+    elif len(commands) == 3:
+        entry_price = commands[1]
+        stop_loss = commands[2]
+        latest_price = bybit_request_helper.get_current_price()
+
     position = calculate_position(entry_price, stop_loss)
     leverage = calculate_leverage(position)
     qty = calculate_quantity(entry_price, stop_loss)
     try:
         bybit_request_helper.set_leverage(leverage, leverage)
-        latest_price = bybit_request_helper.get_current_price()
 
         if side == 'Buy':
             if float(entry_price) > float(latest_price):

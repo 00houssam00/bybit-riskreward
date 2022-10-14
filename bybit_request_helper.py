@@ -84,13 +84,17 @@ def get_current_position():
     return session_auth.my_position(symbol="BTCUSDT")
 
 
-def get_current_price():
+def get_latest_bar_info():
     session_auth = _create_usdt_perpetual_session()
-    response = session_auth.query_kline(
+    return session_auth.query_kline(
         symbol="BTCUSDT",
         interval=5,
         limit=1,
         from_time=int(datetime.timestamp(datetime.now() - timedelta(minutes = 6))))
+
+
+def get_current_price():
+    response = get_latest_bar_info()
     return response['result'][0]['close']
 
 
