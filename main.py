@@ -67,14 +67,15 @@ def process_command_order(commands, side):
         print(ex)
 
 
-def process_command_closeby(commands):
-    if len(commands) == 1:
-        closeby_riskreward()
-    else:
-        closeby_price(commands[1])
+def process_command_closeby_riskreward(commands):
+    closeby_riskreward(commands[1])
 
 
-def closeby_riskreward():
+def process_command_closeby_price(commands):
+    closeby_price(commands[1])
+
+
+def closeby_riskreward(risk_reward):
     my_position = bybit_request_helper.get_current_position()
     position_state = get_current_position_state(my_position)
     entry_price = my_position['result'][position_state['position_index']]['entry_price']
@@ -82,9 +83,9 @@ def closeby_riskreward():
     fee = my_position['result'][position_state['position_index']]['occ_closing_fee']
 
     if config.adapt_risk_reward_to_include_fees == "yes":
-        risk_reward_after_fees = config.risk_reward + (float(fee) / float(get_user_current_risk()))
+        risk_reward_after_fees = float(risk_reward) + (float(fee) / float(get_user_current_risk()))
     elif config.adapt_risk_reward_to_include_fees == "no":
-        risk_reward_after_fees = config.risk_reward
+        risk_reward_after_fees = float(risk_reward)
 
     if risk_reward_after_fees:
         close_by_price_diff = (math.fabs(float(entry_price) - float(stop_loss)) / float(entry_price)) * float(risk_reward_after_fees)
@@ -170,11 +171,6 @@ while True:
 
     show_user_current_risk()
 
-    # Show current user risk to reward ratio
-    risk = get_user_current_risk();
-    print(f"Your current risk to reward is: 1:{config.risk_reward} -> "
-          f"{risk}$:{risk * float(config.risk_reward)}$")
-
     # Show open position if exist
     show_open_position()
 
@@ -190,4 +186,6 @@ while True:
             case 'short':
                 process_command_order(commands, 'Sell')
             case 'closeby':
-                process_command_closeby(commands)
+                process_command_closeby_riskreward(commands)
+            case 'closebyprice':
+                process_command_closeby_price(commands)
