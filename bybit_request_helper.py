@@ -21,7 +21,7 @@ def place_limit_order(side, price, qty, stop_loss):
         order_type="Limit",
         qty=round(qty, 3),
         price=price,
-        time_in_force=config.time_in_force,
+        time_in_force="PostOnly",
         reduce_only=False,
         close_on_trigger=False,
         stop_loss=stop_loss)
@@ -37,7 +37,7 @@ def place_limit_conditional_order(side, price, qty, stop_loss):
         price=price,
         stop_px=price,
         base_price=_calculate_cond_order_base_price(side, price),
-        time_in_force=config.time_in_force,
+        time_in_force="GoodTillCancel",
         trigger_by="LastPrice",
         reduce_only=False,
         close_on_trigger=False,
