@@ -172,7 +172,7 @@ while True:
 
     # Show current user risk to reward ratio
     risk = get_user_current_risk();
-    print(f"Your current risk to reward is: {config.risk_reward} -> "
+    print(f"Your current risk to reward is: 1:{config.risk_reward} -> "
           f"{risk}$:{risk * float(config.risk_reward)}$")
 
     # Show open position if exist
